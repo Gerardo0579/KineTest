@@ -1,0 +1,1 @@
+json.extract! activity_log, :activity_id, :baby_id, :assistant_id, :id, :start_time, :stop_time, :comments
