@@ -8,6 +8,7 @@ class Api::ActivityLogsController < ApplicationController
     render :json => { :error => "id #{@id} not found", :status => 404} unless @error.nil?
 
     if @id.nil?
+      @activity_log = ActivityLog.all
       render :index
     elsif @id == "0"
       @activity_log = ActivityLog.all.joins(:activity, :assistant, :baby)
