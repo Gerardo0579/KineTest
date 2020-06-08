@@ -10,7 +10,7 @@ class Api::ActivityLogsController < ApplicationController
     if @id.nil?
       render :index
     elsif @id == "0"
-      @activity_logs = ActivityLog.all.joins(:activity, :assistant, :baby)
+      @activity_log = ActivityLog.all.joins(:activity, :assistant, :baby)
                         .select("activity_logs.id, 
                                  activity_logs.baby_id, 
                                  activity_logs.start_time, 
@@ -18,9 +18,10 @@ class Api::ActivityLogsController < ApplicationController
                                  babies.name as baby_name, 
                                  activities.name as activity_name, 
                                  assistants.name as assistant_name")
+      
       render :index_related
     else
-      @activity_logs = ActivityLog.where(baby_id: @id)
+      @activity_log = ActivityLog.where(baby_id: @id)
                         .joins(:activity, :assistant)
                         .select("activity_logs.id, 
                                  activity_logs.baby_id, 
@@ -46,11 +47,9 @@ class Api::ActivityLogsController < ApplicationController
   # POST /activity_logs.json
   def create
     @activity_log = ActivityLog.new(activity_log_params)
-    @activity_log.start_time = @activity_log.start_time.iso8601
-    @activity_log.stop_time = @activity_log.stop_time.iso8601
 
-    if @activity_log.save && @activity_log.stop_time > @activity_log.start_time
-      render :show, status: :created, location: @activity_log
+    if @activity_log.save
+      render :show, status: :created
     else
       render json: @activity_log.errors, status: :unprocessable_entity
     end
@@ -59,11 +58,12 @@ class Api::ActivityLogsController < ApplicationController
   # PATCH/PUT /activity_logs/1
   # PATCH/PUT /activity_logs/1.json
   def update
-    if @activity_log.update(activity_log_params)
-      render :show, status: :ok, location: @activity_log
+    if @activity_log.update(activity_log_params_patch)
+      render :show, status: :ok
     else
       render json: @activity_log.errors, status: :unprocessable_entity
     end
+    
   end
 
   # DELETE /activity_logs/1
@@ -77,7 +77,7 @@ class Api::ActivityLogsController < ApplicationController
     def set_activity_log
       begin
         @id = params[:id]
-        @activity_logs = ActivityLog.find(@id)
+        @activity_log = ActivityLog.find(@id)
       rescue ActiveRecord::RecordNotFound
         @error = true
       end
@@ -92,7 +92,11 @@ class Api::ActivityLogsController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
+    def activity_log_params_patch
+      params.require(:activity_log).permit(:stop_time,:comments)
+    end
+
     def activity_log_params
-      params.require(:activity_log).permit(:start_time,:stop_time,:duration,:comments)
+      params.require(:activity_log).permit(:start_time,:baby_id, :assistant_id, :activity_id)
     end
 end
