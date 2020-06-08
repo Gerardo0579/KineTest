@@ -6,8 +6,9 @@ class Api::ActivityLogsController < ApplicationController
   # GET /activity_logs.json
   def index
     render :json => { :error => "id #{@id} not found", :status => 404} unless @error.nil?
-
+    
     if @id.nil?
+      @activity_log = ActivityLog.all
       render :index
     elsif @id == "0"
       @activity_log = ActivityLog.all.joins(:activity, :assistant, :baby)
@@ -80,14 +81,21 @@ class Api::ActivityLogsController < ApplicationController
         @activity_log = ActivityLog.find(@id)
       rescue ActiveRecord::RecordNotFound
         @error = true
+        @activity_log = ActivityLog.new
+        @activity_log.errors[:id] << "activity log with id #{params[:id]} not found"
+        render json: @activity_log.errors, status: :not_found
       end
     end
 
     def set_related_id
       begin
         @id = params[:baby_id]
+        Baby.find(@id).inspect
       rescue ActiveRecord::RecordNotFound
         @error = true
+        @activity_log = ActivityLog.new
+        @activity_log.errors[:id] << "baby with id #{@id} not found"
+        render json: @activity_log.errors, status: :not_found
       end
     end
 

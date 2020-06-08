@@ -45,7 +45,14 @@ class Api::ActivitiesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
-      @activity = Activity.find(params[:id])
+      
+      begin
+        @activity = Activity.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        @activity = Assistant.new
+        @activity.errors[:id] << "activity with id #{params[:id]} not found"
+        render json:  @activity.errors, status: :not_found
+      end
     end
 
     # Only allow a list of trusted parameters through.

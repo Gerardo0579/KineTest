@@ -45,7 +45,13 @@ class Api::AssistantsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_assistant
-      @assistant = Assistant.find(params[:id])
+      begin
+        @assistant = Assistant.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        @assistant = Assistant.new
+        @assistant.errors[:id] << "assistant with id #{} not found"
+        render json: @assistant.errors, status: :not_found
+      end
     end
 
     # Only allow a list of trusted parameters through.

@@ -45,7 +45,13 @@ class Api::BabiesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_baby
-      @baby = Baby.find(params[:id])
+      begin
+        @baby = Baby.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        @baby = Baby.new
+        @baby.errors[:id] << "baby with id #{params[:id]} not found"
+        render json: @baby.errors, status: :not_found
+      end
     end
 
     # Only allow a list of trusted parameters through.
