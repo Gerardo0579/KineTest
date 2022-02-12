@@ -12,7 +12,7 @@ gem 'mysql2'
 #Use schema_to_scaffold to create migration from existing database
 gem 'schema_to_scaffold'
 # Use Puma as the app server
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 4.3'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
 # Calculate difference between dates
